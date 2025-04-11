@@ -7,4 +7,4 @@ so if you replace makeBinaryWrapper, in YOUR WHOLE nixpkgs, you will build EVERY
 
 So, import this as a flake input with flake = false, or using fetchGit and call `pkgs.callPackage this {}` on it
 
-For more info, see: https://github.com/NixOS/nixpkgs/pull/397604
+For more info, see: https://github.com/NixOS/nixpkgs/pull/397604#issuecomment-2795685159
