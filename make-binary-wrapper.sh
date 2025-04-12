@@ -202,12 +202,6 @@ makeCWrapper() {
     printf '\n%s\n' "}"
 }
 
-arg2list() {
-    local toset=$1
-    shift 1
-    eval "$toset=($@)"
-}
-
 addFlags() {
     local n flag before after var
 
@@ -221,10 +215,8 @@ addFlags() {
         reenableGlob=1
     fi
     set -o noglob
-    # shellcheck disable=SC2086
-    arg2list before $1
-    # shellcheck disable=SC2086
-    arg2list after $2
+    eval "before=($1)"
+    eval "after=($2)"
     if (( reenableGlob )); then
         set +o noglob
     fi
