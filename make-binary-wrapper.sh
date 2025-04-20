@@ -538,6 +538,14 @@ formatArgs() {
                 formatArgsLine 1 "$@"
                 shift 1
             ;;
+            --add-flag)
+                formatArgsLine 1 "$@"
+                shift 1
+            ;;
+            --append-flag)
+                formatArgsLine 1 "$@"
+                shift 1
+            ;;
             --add-flags)
                 formatArgsLine 1 "$@"
                 shift 1
