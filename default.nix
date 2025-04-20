@@ -4,7 +4,7 @@
   makeSetupHook,
   dieHook,
   writeShellScript,
-  tests,
+  callPackage,
   cc ? targetPackages.stdenv.cc,
   sanitizers ? [ ],
 }:
@@ -28,6 +28,6 @@ makeSetupHook {
       ${cc.bintools.targetPrefix}strings -dw "$1" | sed -n '/^makeCWrapper/,/^$/ p'
     '';
 
-    tests = tests.makeBinaryWrapper;
+    tests = callPackage ./tests { };
   };
 } ./make-binary-wrapper.sh
