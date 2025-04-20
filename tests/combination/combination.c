@@ -36,7 +36,7 @@ int main(int argc, char **argv) {
     set_env_suffix("PATH", ":", "/usr/local/bin/");
     putenv("MESSAGE2=WORLD");
 
-    char **argv_tmp = calloc(3 + argc + 0 + 1, sizeof(*argv_tmp));
+    char **argv_tmp = calloc(3 + argc + 1, sizeof(*argv_tmp));
     assert(argv_tmp != NULL);
     argv_tmp[0] = argv[0];
     argv_tmp[1] = "-x";

@@ -88,7 +88,7 @@ makeDocumentedCWrapper() {
 makeCWrapper() {
     local argv0 inherit_argv0 n params cmd main flagsBefore flagsAfter flags executable length
     local uses_prefix uses_suffix uses_assert uses_assert_success uses_stdio uses_asprintf
-    local resolve_path
+    local flagBefore flagAfter flag
     executable=$(escapeStringLiteral "$1")
     params=("$@")
     length=${#params[*]}
@@ -147,6 +147,20 @@ makeCWrapper() {
                 n=$((n + 1))
                 [ $n -ge "$length" ] && main="$main#error makeCWrapper: $p takes 1 argument"$'\n'
             ;;
+            --add-flag)
+                flag="${params[n + 1]}"
+                flagBefore="$flagBefore $(printf '%q\n' "$flag")"
+                uses_assert=1
+                n=$((n + 1))
+                [ $n -ge "$length" ] && main="$main#error makeCWrapper: $p takes 1 argument"$'\n'
+            ;;
+            --append-flag)
+                flag="${params[n + 1]}"
+                flagAfter="$flagAfter $(printf '%q\n' "$flag")"
+                uses_assert=1
+                n=$((n + 1))
+                [ $n -ge "$length" ] && main="$main#error makeCWrapper: $p takes 1 argument"$'\n'
+            ;;
             --add-flags)
                 flags="${params[n + 1]}"
                 flagsBefore="$flagsBefore $flags"
@@ -182,7 +196,9 @@ makeCWrapper() {
             ;;
         esac
     done
-    [[ -z "$flagsBefore" && -z "$flagsAfter" ]] || main="$main"${main:+$'\n'}$(addFlags "$flagsBefore" "$flagsAfter")$'\n'$'\n'
+    [[ -z "$flagsBefore" && -z "$flagsAfter" && -z "$flagBefore" && -z "$flagAfter" ]] || {
+        main="$main"${main:+$'\n'}$(addFlags "$flagsBefore" "$flagsAfter" "$flagBefore" "$flagAfter")$'\n'$'\n'
+    }
     [ -z "$inherit_argv0" ] && main="${main}argv[0] = \"${argv0:-${executable}}\";"$'\n'
     [ -z "$resolve_argv0" ] || main="${main}argv[0] = resolve_argv0(argv[0]);"$'\n'
     main="${main}return execv(\"${executable}\", argv);"$'\n'
@@ -203,27 +219,44 @@ makeCWrapper() {
 }
 
 addFlags() {
-    local n flag before after var
+    local n flag before after var singlebefore singleafter
 
     escapedArgsFromString before "$1"
     escapedArgsFromString after "$2"
+    # pre-escaped by printf '%q\n'
+    # required due to inability to use local -n variables to pass arrays
+    eval "singlebefore=($3)"
+    eval "singleafter=($4)"
+
+    local afterlen=${#after[@]}
+    local singlebeforelen=${#singlebefore[@]}
+    local beforelen=${#before[@]}
+    local singleafterlen=${#singleafter[@]}
 
     var="argv_tmp"
-    printf '%s\n' "char **$var = calloc(${#before[@]} + argc + ${#after[@]} + 1, sizeof(*$var));"
+    printf '%s\n' "char **$var = calloc($((singlebeforelen + beforelen)) + argc + $((singleafterlen + afterlen + 1)), sizeof(*$var));"
     printf '%s\n' "assert($var != NULL);"
     printf '%s\n' "${var}[0] = argv[0];"
-    for ((n = 0; n < ${#before[@]}; n += 1)); do
-        flag=$(escapeStringLiteral "${before[n]}")
+    for ((n = 0; n < singlebeforelen; n += 1)); do
+        flag=$(escapeStringLiteral "${singlebefore[n]}")
         printf '%s\n' "${var}[$((n + 1))] = \"$flag\";"
     done
-    printf '%s\n' "for (int i = 1; i < argc; ++i) {"
-    printf '%s\n' "    ${var}[${#before[@]} + i] = argv[i];"
-    printf '%s\n' "}"
-    for ((n = 0; n < ${#after[@]}; n += 1)); do
-        flag=$(escapeStringLiteral "${after[n]}")
-        printf '%s\n' "${var}[${#before[@]} + argc + $n] = \"$flag\";"
+    for ((n = 0; n < beforelen; n += 1)); do
+        flag=$(escapeStringLiteral "${before[n]}")
+        printf '%s\n' "${var}[$((n + 1 + singlebeforelen))] = \"$flag\";"
     done
-    printf '%s\n' "${var}[${#before[@]} + argc + ${#after[@]}] = NULL;"
+    printf '%s\n' "for (int i = 1; i < argc; ++i) {"
+    printf '%s\n' "    ${var}[$((singlebeforelen + beforelen)) + i] = argv[i];"
+    printf '%s\n' "}"
+    for ((n = 0; n < singleafterlen; n += 1)); do
+        flag=$(escapeStringLiteral "${singleafter[n]}")
+        printf '%s\n' "${var}[$((singlebeforelen + beforelen)) + argc + $n] = \"$flag\";"
+    done
+    for ((n = 0; n < afterlen; n += 1)); do
+        flag=$(escapeStringLiteral "${after[n]}")
+        printf '%s\n' "${var}[$((singlebeforelen + beforelen)) + argc + $((n + singleafterlen))] = \"$flag\";"
+    done
+    printf '%s\n' "${var}[$((singlebeforelen + beforelen)) + argc + $((singleafterlen + afterlen))] = NULL;"
     printf '%s\n' "argv = $var;"
 }
 

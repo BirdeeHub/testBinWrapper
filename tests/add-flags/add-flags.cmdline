@@ -15,4 +15,6 @@
     *.lua $HOME"
     $HOME' \
     --add-flags '\$word "\$word"' \
-    --add-flags ''\''\$word'\'''
+    --add-flags ''\''\$word'\''' \
+    --add-flag 'test var here' \
+    --add-flag 'test var 2 here'
