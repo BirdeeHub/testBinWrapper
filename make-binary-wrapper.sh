@@ -231,7 +231,7 @@ addFlags() {
     escapedArgsFromString before "$1"
     escapedArgsFromString after "$2"
     # pre-escaped by printf '%q\n'
-    # required due to inability to use local -n variables to pass arrays
+    # eval required due to inability to use local -n variables to pass arrays
     eval "singlebefore=($3)"
     eval "singleafter=($4)"
 
