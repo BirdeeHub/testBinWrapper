@@ -31,7 +31,7 @@ assertExecutable() {
 #                          (that is, *after* any arguments passed on the command line)
 # --add-flag    ARG      : prepend ARG to the invocation of the executable, escaped as a single argument
 #                           (these are added before arguments provided to --add-flags)
-# --append-flag ARG      : append ARG to the invocation of the executable
+# --append-flag ARG      : append ARG to the invocation of the executable, escaped as a single argument
 #                           (these are added before arguments provided to --append-flags)
 
 # --prefix          ENV SEP VAL   : suffix/prefix ENV with VAL, separated by SEP
