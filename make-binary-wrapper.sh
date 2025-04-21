@@ -95,7 +95,7 @@ makeCWrapper() {
     local argv0 inherit_argv0 n params cmd main flagsBefore flagsAfter flags executable length
     local uses_prefix uses_suffix uses_assert uses_assert_success uses_stdio uses_asprintf
     local resolve_path
-    local flagBefore flagAfter flag
+    local flagBefore flagAfter
     executable=$(escapeStringLiteral "$1")
     params=("$@")
     length=${#params[*]}
@@ -155,15 +155,15 @@ makeCWrapper() {
                 [ $n -ge "$length" ] && main="$main#error makeCWrapper: $p takes 1 argument"$'\n'
             ;;
             --add-flag)
-                flag="${params[n + 1]}"
-                flagBefore="$flagBefore $(printf '%q\n' "$flag")"
+                flags="${params[n + 1]}"
+                flagBefore="$flagBefore $(printf '%q\n' "$flags")"
                 uses_assert=1
                 n=$((n + 1))
                 [ $n -ge "$length" ] && main="$main#error makeCWrapper: $p takes 1 argument"$'\n'
             ;;
             --append-flag)
-                flag="${params[n + 1]}"
-                flagAfter="$flagAfter $(printf '%q\n' "$flag")"
+                flags="${params[n + 1]}"
+                flagAfter="$flagAfter $(printf '%q\n' "$flags")"
                 uses_assert=1
                 n=$((n + 1))
                 [ $n -ge "$length" ] && main="$main#error makeCWrapper: $p takes 1 argument"$'\n'
