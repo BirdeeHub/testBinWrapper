@@ -25,16 +25,14 @@ assertExecutable() {
 #                          the environment
 # --unset        VAR     : remove VAR from the environment
 # --chdir        DIR     : change working directory (use instead of --run "cd DIR")
-# --add-flags    ARGS    : prepend ARGS to the invocation of the executable
+# --add-flags    ARGS    : prepend ARGS to the invocation of the executable, to be split on whitespace
 #                          (that is, *before* any arguments passed on the command line)
-# --append-flags ARGS    : append ARGS to the invocation of the executable
+# --append-flags ARGS    : append ARGS to the invocation of the executable, to be split on whitespace
 #                          (that is, *after* any arguments passed on the command line)
-# --add-flag    ARG      : prepend ARG to the invocation of the executable
-#                          (unlike --add-flags, which in makeBinaryWrapper is split on whitespace,
-#                           each argument given to --add-flag is escaped as a single argument)
+# --add-flag    ARG      : prepend ARG to the invocation of the executable, escaped as a single argument
+#                           (these happen before arguments provided to --add-flags)
 # --append-flag ARG      : append ARG to the invocation of the executable
-#                          (unlike --append-flags, which in makeBinaryWrapper is split on whitespace,
-#                           each argument given to --add-flag is escaped as a single argument)
+#                           (these happen before arguments provided to --append-flags)
 
 # --prefix          ENV SEP VAL   : suffix/prefix ENV with VAL, separated by SEP
 # --suffix
