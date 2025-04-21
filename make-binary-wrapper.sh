@@ -231,10 +231,10 @@ addFlags() {
     eval "singlebefore=($3)"
     eval "singleafter=($4)"
 
-    local afterlen=${#after[@]}
     local singlebeforelen=${#singlebefore[@]}
     local beforelen=${#before[@]}
     local singleafterlen=${#singleafter[@]}
+    local afterlen=${#after[@]}
 
     var="argv_tmp"
     printf '%s\n' "char **$var = calloc($((singlebeforelen + beforelen)) + argc + $((singleafterlen + afterlen + 1)), sizeof(*$var));"
