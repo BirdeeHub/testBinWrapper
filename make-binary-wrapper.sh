@@ -150,28 +150,28 @@ makeCWrapper() {
             ;;
             --add-flag)
                 flag="${params[n + 1]}"
-                flagBefore="${flagBefore-} $(printf '%q\n' "$flag")"
+                flagBefore="$flagBefore $(printf '%q\n' "$flag")"
                 uses_assert=1
                 n=$((n + 1))
                 [ $n -ge "$length" ] && main="$main#error makeCWrapper: $p takes 1 argument"$'\n'
             ;;
             --append-flag)
                 flag="${params[n + 1]}"
-                flagAfter="${flagAfter-} $(printf '%q\n' "$flag")"
+                flagAfter="$flagAfter $(printf '%q\n' "$flag")"
                 uses_assert=1
                 n=$((n + 1))
                 [ $n -ge "$length" ] && main="$main#error makeCWrapper: $p takes 1 argument"$'\n'
             ;;
             --add-flags)
                 flags="${params[n + 1]}"
-                flagsBefore="${flagsBefore-} $flags"
+                flagsBefore="$flagsBefore $flags"
                 uses_assert=1
                 n=$((n + 1))
                 [ $n -ge "$length" ] && main="$main#error makeCWrapper: $p takes 1 argument"$'\n'
             ;;
             --append-flags)
                 flags="${params[n + 1]}"
-                flagsAfter="${flagsAfter-} $flags"
+                flagsAfter="$flagsAfter $flags"
                 uses_assert=1
                 n=$((n + 1))
                 [ $n -ge "$length" ] && main="$main#error makeCWrapper: $p takes 1 argument"$'\n'
