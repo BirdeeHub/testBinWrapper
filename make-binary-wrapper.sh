@@ -230,8 +230,8 @@ addFlags() {
     printf '%s\n' "argv = $var;"
 }
 
-# escapedArgsFromString "$INPUT"
-# escapedArgsFromString <<< "$INPUT"
+# eval "somevar=($(escapedArgsFromString "$INPUT"))"
+# eval "somevar=($(printf '%s' "$INPUT" | escapedArgsFromString))"
 escapedArgsFromString() {
     local input="${1:-$(cat)}"
     local token='' escape=0 quote=''
