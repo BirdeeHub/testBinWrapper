@@ -203,8 +203,8 @@ makeCWrapper() {
 addFlags() {
     local n flag before after var
 
-    escapedArgsFromString before "$1"
-    escapedArgsFromString after "$2"
+    argsFromString before "$1"
+    argsFromString after "$2"
 
     local beforelen=${#before[@]}
     local afterlen=${#after[@]}
@@ -228,9 +228,9 @@ addFlags() {
     printf '%s\n' "argv = $var;"
 }
 
-# escapedArgsFromString VARNAME "$INPUT"
-# escapedArgsFromString VARNAME <<< "$INPUT"
-escapedArgsFromString() {
+# argsFromString VARNAME "$INPUT"
+# argsFromString VARNAME <<< "$INPUT"
+argsFromString() {
     local outvar="$1"
     local input="${2:-$(cat)}"
     local token='' escape=0 quote=''
