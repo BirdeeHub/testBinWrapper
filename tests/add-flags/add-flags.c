@@ -35,7 +35,7 @@ int main(int argc, char **argv) {
     argv_tmp[27] = "\\$word";
     argv_tmp[28] = "test var here";
     argv_tmp[29] = "test var 2 here";
-    argv_tmp[30] = "testvar3here testvar\"3here";
+    argv_tmp[30] = "testvar3here testvar3here testvar\"5here";
     for (int i = 1; i < argc; ++i) {
         argv_tmp[30 + i] = argv[i];
     }

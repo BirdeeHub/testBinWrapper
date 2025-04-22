@@ -19,4 +19,5 @@
     --add-flags '"test var here"' \
     --add-flags '"test var 2 here"' \
     --add-flags 'test"var3here' \
-    --add-flags 'test"var"3here'
+    --add-flags 'test"var"3here' \
+    --add-flags 'test"var"5here'
