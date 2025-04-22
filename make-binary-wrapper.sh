@@ -214,13 +214,15 @@ addFlags() {
     printf '%s\n' "assert($var != NULL);"
     printf '%s\n' "${var}[0] = argv[0];"
     for ((n = 0; n < beforelen; n += 1)); do
-        printf '%s\n' "${var}[$((n + 1))] = \"${before[n]}\";"
+        flag="$(escapeStringLiteral "${before[n]}")"
+        printf '%s\n' "${var}[$((n + 1))] = \"$flag\";"
     done
     printf '%s\n' "for (int i = 1; i < argc; ++i) {"
     printf '%s\n' "    ${var}[$((beforelen)) + i] = argv[i];"
     printf '%s\n' "}"
     for ((n = 0; n < afterlen; n += 1)); do
-        printf '%s\n' "${var}[$((beforelen + n)) + argc] = \"${after[n]}\";"
+        flag="$(escapeStringLiteral "${after[n]}")"
+        printf '%s\n' "${var}[$((beforelen + n)) + argc] = \"$flag\";"
     done
     printf '%s\n' "${var}[$((beforelen + afterlen)) + argc] = NULL;"
     printf '%s\n' "argv = $var;"
@@ -314,7 +316,7 @@ escapedArgsFromString() {
     # eval required due to inability to use local -n variables to pass arrays
     eval "$outvar=()"
     for (( pos=0; pos<${#out[@]}; pos++ )); do
-        eval "$outvar+=($(printf '%q' "$(escapeStringLiteral "${out[pos]}")"))"
+        eval "$outvar+=($(printf '%q' "${out[pos]}"))"
     done
 }
 
