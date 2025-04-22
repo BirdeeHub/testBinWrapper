@@ -201,7 +201,7 @@ makeCWrapper() {
 }
 
 addFlags() {
-    local n flag before after var
+    local n before after var
 
     argsFromString before "$1"
     argsFromString after "$2"
@@ -214,15 +214,13 @@ addFlags() {
     printf '%s\n' "assert($var != NULL);"
     printf '%s\n' "${var}[0] = argv[0];"
     for ((n = 0; n < beforelen; n += 1)); do
-        flag="$(escapeStringLiteral "${before[n]}")"
-        printf '%s\n' "${var}[$((n + 1))] = \"$flag\";"
+        printf '%s\n' "${var}[$((n + 1))] = \"$(escapeStringLiteral "${before[n]}")\";"
     done
     printf '%s\n' "for (int i = 1; i < argc; ++i) {"
     printf '%s\n' "    ${var}[$((beforelen)) + i] = argv[i];"
     printf '%s\n' "}"
     for ((n = 0; n < afterlen; n += 1)); do
-        flag="$(escapeStringLiteral "${after[n]}")"
-        printf '%s\n' "${var}[$((beforelen + n)) + argc] = \"$flag\";"
+        printf '%s\n' "${var}[$((beforelen + n)) + argc] = \"$(escapeStringLiteral "${before[n]}")\";"
     done
     printf '%s\n' "${var}[$((beforelen + afterlen)) + argc] = NULL;"
     printf '%s\n' "argv = $var;"
