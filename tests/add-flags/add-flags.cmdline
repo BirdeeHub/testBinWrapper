@@ -16,5 +16,7 @@
     $HOME' \
     --add-flags '\$word "\$word"' \
     --add-flags ''\''\$word'\''' \
-    --add-flag 'test var here' \
-    --add-flag 'test var 2 here'
+    --add-flags '"test var here"' \
+    --add-flags '"test var 2 here"' \
+    --add-flags 'test"var3here' \
+    --add-flags 'test"var"3here'

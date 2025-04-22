@@ -25,13 +25,9 @@ assertExecutable() {
 #                          the environment
 # --unset        VAR     : remove VAR from the environment
 # --chdir        DIR     : change working directory (use instead of --run "cd DIR")
-# --add-flags    ARGS    : prepend ARGS to the invocation of the executable, *to be split on whitespace*
+# --add-flags    ARGS    : prepend ARGS to the invocation of the executable, *to be split as if provided to a command line*
 #                          (that is, *before* any arguments passed on the command line)
-# --append-flags ARGS    : append ARGS to the invocation of the executable, *to be split on whitespace*
-#                          (that is, *after* any arguments passed on the command line)
-# --add-flag    ARG      : prepend ARG to the invocation of the executable, escaped as a single argument
-#                          (that is, *before* any arguments passed on the command line)
-# --append-flag ARG      : append ARG to the invocation of the executable, escaped as a single argument
+# --append-flags ARGS    : append ARGS to the invocation of the executable, *to be split as if provided to a command line*
 #                          (that is, *after* any arguments passed on the command line)
 
 # --prefix          ENV SEP VAL   : suffix/prefix ENV with VAL, separated by SEP
@@ -90,7 +86,7 @@ makeDocumentedCWrapper() {
 # makeCWrapper EXECUTABLE ARGS
 # ARGS: same as makeWrapper
 makeCWrapper() {
-    local argv0 inherit_argv0 n params cmd main flagsBefore flagsAfter flags executable length
+    local argv0 inherit_argv0 n params cmd main flagsBefore flagsAfter executable length
     local uses_prefix uses_suffix uses_assert uses_assert_success uses_stdio uses_asprintf
     local resolve_path
     executable=$(escapeStringLiteral "$1")
@@ -151,26 +147,14 @@ makeCWrapper() {
                 n=$((n + 1))
                 [ $n -ge "$length" ] && main="$main#error makeCWrapper: $p takes 1 argument"$'\n'
             ;;
-            --add-flag)
-                flagsBefore="$flagsBefore $(printf '%q\n' "${params[n + 1]}")"
-                uses_assert=1
-                n=$((n + 1))
-                [ $n -ge "$length" ] && main="$main#error makeCWrapper: $p takes 1 argument"$'\n'
-            ;;
-            --append-flag)
-                flagsAfter="$flagsAfter $(printf '%q\n' "${params[n + 1]}")"
-                uses_assert=1
-                n=$((n + 1))
-                [ $n -ge "$length" ] && main="$main#error makeCWrapper: $p takes 1 argument"$'\n'
-            ;;
             --add-flags)
-                flagsBefore="$flagsBefore $(escapedArgsFromString "${params[n + 1]}")"
+                flagsBefore="$flagsBefore ${params[n + 1]}"
                 uses_assert=1
                 n=$((n + 1))
                 [ $n -ge "$length" ] && main="$main#error makeCWrapper: $p takes 1 argument"$'\n'
             ;;
             --append-flags)
-                flagsAfter="$flagsAfter $(escapedArgsFromString "${params[n + 1]}")"
+                flagsAfter="$flagsAfter ${params[n + 1]}"
                 uses_assert=1
                 n=$((n + 1))
                 [ $n -ge "$length" ] && main="$main#error makeCWrapper: $p takes 1 argument"$'\n'
@@ -221,8 +205,8 @@ addFlags() {
 
     # pre-escaped by printf '%q\n'
     # eval required due to inability to use local -n variables to pass arrays
-    eval "before=($1)"
-    eval "after=($2)"
+    eval "before=($(escapedArgsFromString "$1"))"
+    eval "after=($(escapedArgsFromString "$2"))"
 
     local beforelen=${#before[@]}
     local afterlen=${#after[@]}
@@ -250,13 +234,13 @@ addFlags() {
 # escapedArgsFromString <<< "$INPUT"
 escapedArgsFromString() {
     local input="${1:-$(cat)}"
-    local char='' token='' escape=0 quote=''
+    local token='' escape=0 quote=''
+    local pos char last_quote
 
     local out=()
 
-    while IFS= read -r -n1 char || [[ -n "$char" ]]; do
-        # it gives empty char when you get a newline
-        [[ -z "$char" ]] && char=$'\n'
+    for (( pos=0; pos<${#input}; pos++ )); do
+        char="${input:$pos:1}"
 
         if (( escape )); then
             token+="$char"
@@ -277,6 +261,7 @@ escapedArgsFromString() {
             "'")
                 if [[ $quote == '' ]]; then
                     quote="'"
+                    last_quote=$pos
                 elif [[ $quote == "'" ]]; then
                     quote=''
                 else
@@ -287,6 +272,7 @@ escapedArgsFromString() {
             '"')
                 if [[ $quote == '' ]]; then
                     quote='"'
+                    last_quote=$pos
                 elif [[ $quote == '"' ]]; then
                     quote=''
                 else
@@ -316,10 +302,17 @@ escapedArgsFromString() {
                 token+="$char"
                 ;;
         esac
-    done <<< "$input"
+    done
+
 
     # Add final token if needed
-    [[ -n $token ]] && out+=("$token")
+    if [[ "$quote" == '' ]]; then
+        [[ -n $token ]] && out+=("$token")
+    else
+        # if it contained an unmatched quote, add it back
+        local insert_pos=$((${#token} + 1 - (${#input} - last_quote)))
+        [[ -n $token ]] && out+=("${token:0:insert_pos}$quote${token:insert_pos}")
+    fi
 
     for (( i=0; i<${#out[@]}; i++ )); do
         printf "%q\n" "${out[i]}"

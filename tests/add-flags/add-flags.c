@@ -3,7 +3,7 @@
 #include <assert.h>
 
 int main(int argc, char **argv) {
-    char **argv_tmp = calloc(32 + argc, sizeof(*argv_tmp));
+    char **argv_tmp = calloc(33 + argc, sizeof(*argv_tmp));
     assert(argv_tmp != NULL);
     argv_tmp[0] = argv[0];
     argv_tmp[1] = "-x";
@@ -35,12 +35,13 @@ int main(int argc, char **argv) {
     argv_tmp[27] = "\\$word";
     argv_tmp[28] = "test var here";
     argv_tmp[29] = "test var 2 here";
+    argv_tmp[30] = "testvar3here testvar\"3here";
     for (int i = 1; i < argc; ++i) {
-        argv_tmp[29 + i] = argv[i];
+        argv_tmp[30 + i] = argv[i];
     }
-    argv_tmp[29 + argc] = "-foo";
-    argv_tmp[30 + argc] = "-bar";
-    argv_tmp[31 + argc] = NULL;
+    argv_tmp[30 + argc] = "-foo";
+    argv_tmp[31 + argc] = "-bar";
+    argv_tmp[32 + argc] = NULL;
     argv = argv_tmp;
 
     argv[0] = "/send/me/flags";
