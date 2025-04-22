@@ -1,10 +1,10 @@
 # makeBinaryWrapper
 
-For testing new makeBinaryWrapper change separate from nixpkgs
+This is me just trying different things and seeing what I personally like at this point.
 
-This is useful because EVERYTHING uses makeBinaryWrapper,
-so if you replace makeBinaryWrapper, in YOUR WHOLE nixpkgs, you will build EVERYTHING from source.
+The solution that seems best for nixpkgs is `--add-flag` and `--append-flag` arguments being added,
+and the existing `--add-flags` and `--append-flags` arguments being left unchanged.
 
-So, import this as a flake input with flake = false, or using fetchGit and call `pkgs.callPackage this {}` on it
+But I still am having fun with this script so, this is still here.
 
 For more info, see: https://github.com/NixOS/nixpkgs/pull/397604#issuecomment-2795685159
