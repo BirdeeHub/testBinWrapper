@@ -25,9 +25,9 @@ assertExecutable() {
 #                          the environment
 # --unset        VAR     : remove VAR from the environment
 # --chdir        DIR     : change working directory (use instead of --run "cd DIR")
-# --add-flags    ARGS    : prepend ARGS to the invocation of the executable, to be split on whitespace
+# --add-flags    ARGS    : prepend ARGS to the invocation of the executable, *to be split on whitespace*
 #                          (that is, *before* any arguments passed on the command line)
-# --append-flags ARGS    : append ARGS to the invocation of the executable, to be split on whitespace
+# --append-flags ARGS    : append ARGS to the invocation of the executable, *to be split on whitespace*
 #                          (that is, *after* any arguments passed on the command line)
 # --add-flag    ARG      : prepend ARG to the invocation of the executable, escaped as a single argument
 #                           (these are added before arguments provided to --add-flags)
@@ -237,7 +237,7 @@ addFlags() {
     local afterlen=${#after[@]}
 
     var="argv_tmp"
-    printf '%s\n' "char **$var = calloc($((singlebeforelen + beforelen)) + argc + $((singleafterlen + afterlen + 1)), sizeof(*$var));"
+    printf '%s\n' "char **$var = calloc($((singlebeforelen + beforelen + singleafterlen + afterlen + 1)) + argc, sizeof(*$var));"
     printf '%s\n' "assert($var != NULL);"
     printf '%s\n' "${var}[0] = argv[0];"
     for ((n = 0; n < singlebeforelen; n += 1)); do
@@ -246,20 +246,20 @@ addFlags() {
     done
     for ((n = 0; n < beforelen; n += 1)); do
         flag=$(escapeStringLiteral "${before[n]}")
-        printf '%s\n' "${var}[$((n + 1 + singlebeforelen))] = \"$flag\";"
+        printf '%s\n' "${var}[$((singlebeforelen + n + 1))] = \"$flag\";"
     done
     printf '%s\n' "for (int i = 1; i < argc; ++i) {"
     printf '%s\n' "    ${var}[$((singlebeforelen + beforelen)) + i] = argv[i];"
     printf '%s\n' "}"
     for ((n = 0; n < singleafterlen; n += 1)); do
         flag=$(escapeStringLiteral "${singleafter[n]}")
-        printf '%s\n' "${var}[$((singlebeforelen + beforelen)) + argc + $n] = \"$flag\";"
+        printf '%s\n' "${var}[$((singlebeforelen + beforelen + n)) + argc] = \"$flag\";"
     done
     for ((n = 0; n < afterlen; n += 1)); do
         flag=$(escapeStringLiteral "${after[n]}")
-        printf '%s\n' "${var}[$((singlebeforelen + beforelen)) + argc + $((n + singleafterlen))] = \"$flag\";"
+        printf '%s\n' "${var}[$((singlebeforelen + beforelen + singleafterlen + n)) + argc] = \"$flag\";"
     done
-    printf '%s\n' "${var}[$((singlebeforelen + beforelen)) + argc + $((singleafterlen + afterlen))] = NULL;"
+    printf '%s\n' "${var}[$((singlebeforelen + beforelen + singleafterlen + afterlen)) + argc] = NULL;"
     printf '%s\n' "argv = $var;"
 }
 
