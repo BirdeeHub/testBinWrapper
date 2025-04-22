@@ -203,10 +203,8 @@ makeCWrapper() {
 addFlags() {
     local n flag before after var
 
-    # pre-escaped by printf '%q\n'
-    # eval required due to inability to use local -n variables to pass arrays
-    eval "before=($(escapedArgsFromString "$1"))"
-    eval "after=($(escapedArgsFromString "$2"))"
+    escapedArgsFromString before "$1"
+    escapedArgsFromString after "$2"
 
     local beforelen=${#before[@]}
     local afterlen=${#after[@]}
@@ -230,10 +228,11 @@ addFlags() {
     printf '%s\n' "argv = $var;"
 }
 
-# eval "somevar=($(escapedArgsFromString "$INPUT"))"
-# eval "somevar=($(printf '%s' "$INPUT" | escapedArgsFromString))"
+# escapedArgsFromString VARNAME "$INPUT"
+# escapedArgsFromString VARNAME <<< "$INPUT"
 escapedArgsFromString() {
-    local input="${1:-$(cat)}"
+    local outvar="$1"
+    local input="${2:-$(cat)}"
     local token='' escape=0 quote=''
     local pos char last_quote
 
@@ -314,8 +313,10 @@ escapedArgsFromString() {
         [[ -n $token ]] && out+=("${token:0:insert_pos}$quote${token:insert_pos}")
     fi
 
-    for (( i=0; i<${#out[@]}; i++ )); do
-        printf "%q\n" "${out[i]}"
+    # eval required due to inability to use local -n variables to pass arrays
+    eval "$outvar=()"
+    for (( pos=0; pos<${#out[@]}; pos++ )); do
+        eval "$outvar+=($(printf '%q' "${out[pos]}"))"
     done
 }
 
