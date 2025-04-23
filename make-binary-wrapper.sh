@@ -230,6 +230,9 @@ addFlags() {
 argsFromString() {
     local -n outvar=$1
     local input="$2"
+    (( ${#outvar[@]} )) && {
+        input="${outvar[$(( ${#outvar[@]} - 1 ))]} $input" && unset "outvar[$(( ${#outvar[@]} - 1 ))]"
+    }
     local token='' escape=0 quote=''
     local pos=0 char='' last_quote=0
 
