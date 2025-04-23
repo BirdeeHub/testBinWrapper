@@ -227,10 +227,9 @@ addFlags() {
 }
 
 # argsFromString VARNAME "$INPUT"
-# argsFromString VARNAME <<< "$INPUT"
 argsFromString() {
     local outvar="$1"
-    local input="${2-$(cat)}"
+    local input="$2"
     local token='' escape=0 quote=''
     local pos char last_quote
 
