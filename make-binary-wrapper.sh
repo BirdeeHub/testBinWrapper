@@ -88,7 +88,6 @@ makeDocumentedCWrapper() {
 makeCWrapper() {
     local argv0 inherit_argv0 n params cmd main flagsBefore flagsAfter executable length
     local uses_prefix uses_suffix uses_assert uses_assert_success uses_stdio uses_asprintf
-    local resolve_path
     executable=$(escapeStringLiteral "$1")
     params=("$@")
     length=${#params[*]}
@@ -201,7 +200,8 @@ makeCWrapper() {
 }
 
 addFlags() {
-    local n before after var
+    local n var
+    local before=() after=()
 
     argsFromString before "$1"
     argsFromString after "$2"
@@ -220,7 +220,7 @@ addFlags() {
     printf '%s\n' "    ${var}[$((beforelen)) + i] = argv[i];"
     printf '%s\n' "}"
     for ((n = 0; n < afterlen; n += 1)); do
-        printf '%s\n' "${var}[$((beforelen + n)) + argc] = \"$(escapeStringLiteral "${before[n]}")\";"
+        printf '%s\n' "${var}[$((beforelen + n)) + argc] = \"$(escapeStringLiteral "${after[n]}")\";"
     done
     printf '%s\n' "${var}[$((beforelen + afterlen)) + argc] = NULL;"
     printf '%s\n' "argv = $var;"
@@ -228,10 +228,10 @@ addFlags() {
 
 # argsFromString VARNAME "$INPUT"
 argsFromString() {
-    local outvar="$1"
+    local -n outvar=$1
     local input="$2"
     local token='' escape=0 quote=''
-    local pos char last_quote
+    local pos=0 char='' last_quote=0
 
     local out=()
 
@@ -310,10 +310,8 @@ argsFromString() {
         [[ -n $token ]] && out+=("${token:0:insert_pos}$quote${token:insert_pos}")
     fi
 
-    # eval required due to inability to use local -n variables to pass arrays
-    eval "$outvar=()"
     for (( pos=0; pos<${#out[@]}; pos++ )); do
-        eval "$outvar+=($(printf '%q' "${out[pos]}"))"
+        outvar+=("${out[pos]}")
     done
 }
 
